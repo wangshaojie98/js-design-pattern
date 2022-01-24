@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <button id="btn">alert(1)</button>
+  <script>
+    /**
+     * before：传入的fn是一个函数，fn先执行
+     * after：传入的fn参数是一个函数，fn后执行
+     */
+
+    Function.prototype.before = function(fn) {
+      const originalFn = this;
+
+      return function(...args) {
+        fn.apply(this, args);
+        
+        return originalFn.apply(this, args);
+      }
+    }
+
+    Function.prototype.after = function(afterFn) {
+      const originalFn = this;
+
+      return function(...args) {
+        const res = originalFn.apply(this, args);
+        afterFn.apply(this, args);
+
+        return res;
+      }
+    }
+
+    // 实现一个button在点击触发alert(1)之前先触发alert(2)
+    function alert1() {
+      console.log('alert1')
+      alert(1)
+    }
+
+    function alert2(msg) {
+      alert(msg)
+    }
+
+    const btn = document.getElementById("btn");
+    const fn = alert1.before(alert2)
+    btn.addEventListener("click", function() {
+      fn('2')      
+    }, false)
+
+
+    // 在onload的方法之后执行一些功能
+
+    window.onload = function() {
+      console.log('onload')
+    }
+
+    window.onload = (window.onload || function() {})
+      .after(function(){
+        console.log('1')
+      })
+      .after(function(){
+        console.log('2')
+      })
+      .after(function(){
+        console.log('3')
+      })
+      .after(function(){
+        console.log('4')
+      })
+      .after(function(){
+        console.log('5')
+      })
+      .after(function(){
+        console.log('6')
+      })
+  </script>
+</body>
+</html>

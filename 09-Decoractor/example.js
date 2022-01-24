@@ -37,3 +37,4 @@ const plane = new Plane();
 const missilePlane = new MissileDecorator(plane);
 const atomPlane = new AtomDecorator(missilePlane);
 atomPlane.fire();
+

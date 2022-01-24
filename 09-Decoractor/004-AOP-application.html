@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script src="./003-AOP.js"></script>
+
+  <h3>实现一个数据统计上报</h3>
+  <p>比如页面中有一个登录 button，点击这个 button 会弹出登录浮层，与此同时要进行数据上报，来统计有多少用户点击了这个登录 button</p>
+  <button id="btn-1" tag="login">点击打开登录浮层</button>
+  <script>
+    // ，既要负责打开登录浮层，又要负责数据上报，这是两个层面的功能，在此处却被耦合在一个函数里。
+    const showLogin = function() {
+      alert("登录窗口")
+      log(this.getAttribute('tag'))
+    }
+
+    const log = function(tag) {
+      console.log('上报标签为：', tag)
+
+      // xxxx真正的上报代码
+    }
+
+    document.getElementById("btn-1").onclick = showLogin
+  </script>
+
+  <h3>实现一个数据统计上报(AOP)</h3>
+  <p>比如页面中有一个登录 button，点击这个 button 会弹出登录浮层，与此同时要进行数据上报，来统计有多少用户点击了这个登录 button</p>
+  <button id="btn-2" tag="login2">点击打开登录浮层</button>
+  <script>
+    let showLogin1 = function() {
+      alert("登录窗口")
+    }
+
+    const log1 = function() {
+      console.log('上报标签为：', this.getAttribute('tag'))
+      // xxxx真正的上报代码
+    }
+    showLogin1 = showLogin1.after(log1) // 打开登录浮层之后上报数据
+    document.getElementById("btn-2").onclick = showLogin1
+  </script>
+
+
+  <h3>用AOP动态改变函数的参数-防止csrf攻击给请求添加一个token</h3>
+  <p>比如页面中有一个登录 button，点击这个 button 会弹出登录浮层，与此同时要进行数据上报，来统计有多少用户点击了这个登录 button</p>
+  <button id="btn-3">请求</button>
+  <script>
+    // ajax既能发请求，又要添加Token参数
+    const ajax = (type, url, params) => {
+      // 添加token
+      params.token = "token1111"
+      // 模拟发请求 
+      console.log({
+        type,
+        params,
+        url
+      })
+    }
+
+    document.getElementById("btn-3").onclick = () => {
+      ajax('get', 'http://xxxxx.com', { name: 'wsj' });
+    }
+  </script>
+
+
+  <h3>用AOP动态改变函数的参数-防止csrf攻击给请求添加一个token(AOP)</h3>
+  <p>比如页面中有一个登录 button，点击这个 button 会弹出登录浮层，与此同时要进行数据上报，来统计有多少用户点击了这个登录 button</p>
+  <button id="btn-4">请求</button>
+  <script>
+    const ajax4 = (type, url, params) => {
+      // 模拟发请求 
+      console.log({
+        type,
+        params,
+        url
+      })
+    }
+
+    const setToken = function(type, url, params) {
+      params.token = "Token"
+    }
+
+    document.getElementById("btn-4").onclick = () => {
+      ajax4.before(setToken)('POST', "http://xxxx.com", { name: 'jsw' });
+    }
+  </script>
+</body>
+</html>
